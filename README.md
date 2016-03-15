@@ -1,6 +1,6 @@
 # Expect
 
-***Note: This package is unstable and might break.**
+**Note: This package is unstable and might break.**
 
 This package is a pure PHP alternative to [expect](https://en.wikipedia.org/wiki/Expect), the Unix tool.  This package doesn't depend on the [PECL package](https://pecl.php.net/package/expect) either.
 
