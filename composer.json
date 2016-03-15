@@ -1,0 +1,15 @@
+{
+    "name": "yuloh/expect",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Matt Allan",
+            "email": "matthew.james.allan@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Yuloh\\Expect\\": "src"
+        }
+    }
+}
