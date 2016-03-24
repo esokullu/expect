@@ -89,32 +89,6 @@ class Expect
         $this->log("Output: {$output}");
     }
 
-    public function unbuffer()
-    {
-        if (empty(shell_exec('which script'))) {
-            throw new \RuntimeException('Unbuffering requires script, which was not found.');
-        }
-
-        switch (PHP_OS) {
-            case 'FreeBSD':
-            case 'Darwin':
-                $this->cmd = 'script -q /dev/null ' . $this->cmd;
-                break;
-            case 'Linux':
-                $this->cmd = "script -c '{$this->cmd}' /dev/null";
-                break;
-            default:
-                throw new \RuntimeException(
-                    'Unable to automatically unbuffer for your OS.  ' .
-                    'You will need to modify your shell command manually.'
-                );
-        }
-
-        $this->unbuffered = true;
-
-        return $this;
-    }
-
     public function debug()
     {
         $this->debug = true;

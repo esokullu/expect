@@ -58,18 +58,6 @@ Expect::debug()
 
 Enable debug mode.  All activity is logged to the console, so you can see what is happening.
 
-```php
-Expect::unbuffer()
-```
-
-Attempts to prevent buffering of output using [script](https://en.wikipedia.org/wiki/Script_(Unix)).  Some programs like Composer buffer the output so Expect won't work unless you unbuffer the output.
-
-This method will throw an exception if you aren't using Linux, FreeBSD, or OSX, or if you are missing the program `script`.
-
-A side effect of using script is all of your answers show up too, so you will probably need to add a wildcard before your expectation.
-
-This is pretty hacky; hopefully someone can come up with a better solution.
-
 ## Examples
 
 ### Simple Example
@@ -114,31 +102,24 @@ Yuloh\Expect\Expect::spawn('npm init')
     ->run();
 ```
 
-### Composer init
+## Buffering
 
-This example demonstrates creating a new package with composer.  Since composer does output buffering, we need to disable it using the `unbuffer` method.
+Some programs like Composer buffer the output so Expect won't work unless you unbuffer the output.  The easiest way to do this is probably using [script](https://en.wikipedia.org/wiki/Script_(Unix)).  Modify your command to pipe through script like this:
+
+```bash
+# FreeBSD/Darwin (Mac OSX)
+script -q /dev/null {your-command}
+# Linux
+script -c {your-command} /dev/null
+```
+
+Then you can pass that in to Expect:
 
 ```php
-
-Yuloh\Expect\Expect::spawn('composer init')
-    ->unbuffer()
-    ->expect('*Package name*')
-    ->send('yuloh/expect')
-    ->expect('*Description*')
-    ->send('awesome scripting for cli tasks.')
-    ->expect('*Author*')
-    ->send('n')
-    ->expect('*Minimum Stability*')
-    ->send('dev')
-    ->expect('*Package Type*')
-    ->send(PHP_EOL)
-    ->expect('*License*')
-    ->send('MIT')
-    ->expect('*Would you like to define your dependencies (require) interactively*')
-    ->send('no')
-    ->expect('*Would you like to define your dev dependencies (require-dev) interactively*')
-    ->send('no')
-    ->expect('*Do you confirm generation*')
-    ->send('yes')
+Expect::spawn('script -q /dev/null ssh localhost')
+    ->expect('*password:')
+    ->send('hunter 2')
     ->run();
 ```
+
+You will probably need to modify expectations when using script, since what you type will show up in stdout too.
