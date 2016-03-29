@@ -109,7 +109,7 @@ There are a couple of things that can go wrong while running your process:
 - The process can halt unexpectedly.
 - The process can send EOF before your expectation happens.
 
-If the process fails to start, a `RuntimeException` is thrown.  The [`Yuloh\Expect\Exceptions` namespace]('src/Exceptions') contains exceptions for the other three scenarios.  All of the exceptions extend `Yuloh\Expect\FailedExpectationException` so you can just catch that one if you like.
+If the process fails to start, a `RuntimeException` is thrown.  The [`Yuloh\Expect\Exceptions` namespace](src/Exceptions) contains exceptions for the other three scenarios.  All of the exceptions extend `Yuloh\Expect\FailedExpectationException` so you can just catch that one if you like.
 
 ## Buffering
 
