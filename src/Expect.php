@@ -114,14 +114,14 @@ class Expect
      * @throws \RuntimeException If the process can not be created.
      * @throws \Yuloh\Expect\Exceptions\ProcessTimeoutException    if the process times out.
      * @throws \Yuloh\Expect\Exceptions\UnexpectedEOFException     if an unexpected EOF is found.
-     * @throws \Yuloh\Expect\Exceptions\ProcessTerminatedException if the process is terminated before the expectation is met.
+     * @throws \Yuloh\Expect\Exceptions\ProcessTerminatedException if the process is terminated
+     * before the expectation is met.
      */
     public function run()
     {
         $this->createProcess();
 
         foreach ($this->steps as $step) {
-
             if ($step[0] === self::EXPECT) {
                 $expectation = $step[1];
                 $timeout     = $step[2];
@@ -176,7 +176,8 @@ class Expect
      * @return null
      * @throws \Yuloh\Expect\Exceptions\ProcessTimeoutException if the process times out.
      * @throws \Yuloh\Expect\Exceptions\UnexpectedEOFException if an unexpected EOF is found.
-     * @throws \Yuloh\Expect\Exceptions\ProcessTerminatedException if the process is terminated before the expectation is met.
+     * @throws \Yuloh\Expect\Exceptions\ProcessTerminatedException if the process is terminated
+     * before the expectation is met.
      */
     private function waitForExpectedResponse($expectation, $timeout)
     {
@@ -187,7 +188,6 @@ class Expect
         stream_set_blocking($this->pipes[1], false);
 
         while (true) {
-
             if (time() - $start >= $timeout) {
                 throw new ProcessTimeoutException();
             }

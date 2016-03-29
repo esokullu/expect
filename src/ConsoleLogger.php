@@ -10,11 +10,11 @@ class ConsoleLogger extends AbstractLogger implements LoggerInterface
     /**
      * @var resource
      */
-    private $stout;
+    private $stream;
 
-    public function __construct()
+    public function __construct($stream = null)
     {
-        $this->stdout = fopen('php://stdout', 'w');
+        $this->stream = $stream ?: fopen('php://stdout', 'w');
     }
 
     /**
@@ -27,7 +27,7 @@ class ConsoleLogger extends AbstractLogger implements LoggerInterface
      */
     public function log($level, $message, array $context = array())
     {
-        fwrite($this->stdout, $this->formatMessage($this->interpolate($message, $context)));
+        fwrite($this->stream, $this->formatMessage($this->interpolate($message, $context)));
     }
 
     /**

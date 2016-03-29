@@ -132,3 +132,10 @@ Expect::spawn('script -q /dev/null ssh localhost')
 ```
 
 You will probably need to modify expectations when using script, since what you type will show up in stdout too.
+
+## Testing
+
+```bash
+composer test
+composer cs
+```
