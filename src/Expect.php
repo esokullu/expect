@@ -4,11 +4,19 @@ namespace Yuloh\Expect;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Yuloh\Expect\Exceptions\ProcessTimeoutException;
+use Yuloh\Expect\Exceptions\UnexpectedEOFException;
+use Yuloh\Expect\Exceptions\ProcessTerminatedException;
 
 class Expect
 {
     const EXPECT = 0;
     const SEND   = 1;
+
+    /**
+     * The default timeout for expectations.
+     */
+    const DEFAULT_TIMEOUT = 9999999;
 
     /**
      * @var string
@@ -65,14 +73,16 @@ class Expect
 
     /**
      * Register a step to expect the given text to show up on stdout.
-     * Expect will block and keep checking the stdout buffer until your expectation shows up.
+     * Expect will block and keep checking the stdout buffer until your expectation
+     * shows up or the timeout is reached, whichever comes first.
      *
      * @param  string $output
+     * @param  int    $timeout
      * @return $this
      */
-    public function expect($output)
+    public function expect($output, $timeout = self::DEFAULT_TIMEOUT)
     {
-        $this->steps[] = [self::EXPECT, $output];
+        $this->steps[] = [self::EXPECT, $output, $timeout];
 
         return $this;
     }
@@ -97,8 +107,14 @@ class Expect
 
     /**
      * Run the process and execute the registered steps.
+     * The program will block until the steps are completed or a timeout occurs.
      *
      * @return null
+     *
+     * @throws \RuntimeException If the process can not be created.
+     * @throws \Yuloh\Expect\Exceptions\ProcessTimeoutException    if the process times out.
+     * @throws \Yuloh\Expect\Exceptions\UnexpectedEOFException     if an unexpected EOF is found.
+     * @throws \Yuloh\Expect\Exceptions\ProcessTerminatedException if the process is terminated before the expectation is met.
      */
     public function run()
     {
@@ -108,7 +124,8 @@ class Expect
 
             if ($step[0] === self::EXPECT) {
                 $expectation = $step[1];
-                $this->waitForExpectedResponse($expectation);
+                $timeout     = $step[2];
+                $this->waitForExpectedResponse($expectation, $timeout);
             } else {
                 $input = $step[1];
                 $this->sendInput($input);
@@ -157,19 +174,41 @@ class Expect
      *
      * @param  string $expectation The expected output.  Will be glob matched.
      * @return null
+     * @throws \Yuloh\Expect\Exceptions\ProcessTimeoutException if the process times out.
+     * @throws \Yuloh\Expect\Exceptions\UnexpectedEOFException if an unexpected EOF is found.
+     * @throws \Yuloh\Expect\Exceptions\ProcessTerminatedException if the process is terminated before the expectation is met.
      */
-    private function waitForExpectedResponse($expectation)
+    private function waitForExpectedResponse($expectation, $timeout)
     {
-        $response    = null;
-        $buffer      = '';
-        while (is_null($response) || !fnmatch($expectation, $response)) {
-            $buffer .= fread($this->pipes[1],4096);
-            $response = static::trimAnswer($buffer);
+        $response           = null;
+        $lastLoggedResponse = null;
+        $buffer             = '';
+        $start              = time();
+        stream_set_blocking($this->pipes[1], false);
 
-            $this->logger->info("Expected '{$expectation}', got '{$response}'");
+        while (true) {
+
+            if (time() - $start >= $timeout) {
+                throw new ProcessTimeoutException();
+            }
+
+            if (feof($this->pipes[1])) {
+                throw new UnexpectedEOFException();
+            }
 
             if (!$this->isRunning()) {
-                // @todo
+                throw new ProcessTerminatedException();
+            }
+
+            $buffer .= fread($this->pipes[1], 4096);
+            $response = static::trimAnswer($buffer);
+
+            if ($response !== '' && $response !== $lastLoggedResponse) {
+                $lastLoggedResponse = $response;
+                $this->logger->info("Expected '{$expectation}', got '{$response}'");
+            }
+
+            if (fnmatch($expectation, $response)) {
                 return;
             }
         }

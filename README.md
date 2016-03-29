@@ -37,14 +37,12 @@ spawn(string $cmd, string $cwd = null, LoggerInterface $logger = null)
 Spawn a new instance of expect for the given command. You can optionally specify a working directory and a PSR compatible logger to use.
 
 ```php
-expect(string $output)
+expect(string $output, $timeout = 9999999)
 ```
 
-Expect the given text to show up on stdout.  Expect will block and keep checking the stdout buffer until your expectation shows up.
+Expect the given text to show up on stdout.  Expect will block and keep checking the stdout buffer until your expectation shows up or the timeout is reached, whichever comes first.
 
 You can use [shell wildcards](http://tldp.org/LDP/GNU-Linux-Tools-Summary/html/x11655.htm) to match parts of output.
-
-**There isn't a timeout right now so it may hang indefinitely!**
 
 ```php
 send(string $msg)
@@ -113,6 +111,17 @@ Yuloh\Expect\Expect::spawn('cat', getcwd(), new Yuloh\Expect\ConsoleLogger())
 * Sending 'hi⏎'
 * Expected 'hi', got 'hi'
 ```
+
+## Exceptions
+
+There are a couple of things that can go wrong while running your process:
+
+- The process can fail to start.
+- The process can timeout before your expectation happens.
+- The process can halt unexpectedly.
+- The process can send EOF before your expectation happens.
+
+If the process fails to start, a `RuntimeException` is thrown.  The [`Yuloh\Expect\Exceptions` namespace]('src/Exceptions') contains exceptions for the other three scenarios.  All of the exceptions extend `Yuloh\Expect\FailedExpectationException` so you can just catch that one if you like.
 
 ## Buffering
 
