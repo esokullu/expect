@@ -1,7 +1,5 @@
 # Expect
 
-**Note: This package is unstable and might break.**
-
 This package is a pure PHP alternative to [expect](https://en.wikipedia.org/wiki/Expect), the Unix tool.  This package doesn't depend on the [PECL package](https://pecl.php.net/package/expect) either.
 
 Expect lets you script interactions with interactive terminal applications.
@@ -12,18 +10,8 @@ I wrote this because I wrote an interactive CLI program and needed to write auto
 
 ## Installation
 
-This package isn't in composer right now since it's a WIP and really rough at the moment.  You need to add the repository url to your composer.json use it for now.
-
-```
-"repositories": [
-    {
-        "type": "git",
-        "url": "https://github.com/yuloh/expect.git"
-    },
-],
-require": {
-    "yuloh/expect": "dev-master"
-}
+```bash
+composer require yuloh/expect
 ```
 
 ## API
