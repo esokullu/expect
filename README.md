@@ -31,13 +31,13 @@ require": {
 Note: all methods return $this for fluent chaining.
 
 ```php
-Expect::spawn(string $cmd, string $cwd)
+spawn(string $cmd, string $cwd = null, LoggerInterface $logger = null)
 ```
 
-Spawn a new instance of expect for the given command. You can optionally specify a working directory.
+Spawn a new instance of expect for the given command. You can optionally specify a working directory and a PSR compatible logger to use.
 
 ```php
-Expect::expect(string $output)
+expect(string $output)
 ```
 
 Expect the given text to show up on stdout.  Expect will block and keep checking the stdout buffer until your expectation shows up.
@@ -47,16 +47,10 @@ You can use [shell wildcards](http://tldp.org/LDP/GNU-Linux-Tools-Summary/html/x
 **There isn't a timeout right now so it may hang indefinitely!**
 
 ```php
-Expect::send(string $msg)
+send(string $msg)
 ```
 
 Send the given text on stdin.  A newline is added to each string to simulate pressing enter.  If you want to just send enter you can do `send(PHP_EOL)`
-
-```php
-Expect::debug()
-```
-
-Enable debug mode.  All activity is logged to the console, so you can see what is happening.
 
 ## Examples
 
@@ -100,6 +94,24 @@ Yuloh\Expect\Expect::spawn('npm init')
     ->expect('*')
     ->send('yes')
     ->run();
+```
+
+## Logging
+
+You will probably need logging to figure out what is happening.  Expect accepts a PSR compatible logger during instantiation.  You can use the `Yuloh\Expect\ConsoleLogger` for readable output while writing scripts or debugging.  For example, instantiating Expect like this:
+
+```php
+Yuloh\Expect\Expect::spawn('cat', getcwd(), new Yuloh\Expect\ConsoleLogger())
+    ->send('hi')
+    ->expect('hi')
+    ->run();
+```
+
+...would output this to the terminal:
+
+```bash
+* Sending 'hi⏎'
+* Expected 'hi', got 'hi'
 ```
 
 ## Buffering

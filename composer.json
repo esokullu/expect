@@ -11,5 +11,8 @@
         "psr-4": {
             "Yuloh\\Expect\\": "src"
         }
+    },
+    "require": {
+        "psr/log": "^1.0"
     }
 }
