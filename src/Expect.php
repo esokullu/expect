@@ -42,6 +42,11 @@ class Expect
      * @var \Psr\Log\LoggerInterface
      */
     private $logger;
+    
+    /** 
+     * @var int
+     */
+    private $result;
 
     /**
      * @param string $cmd
@@ -133,6 +138,7 @@ class Expect
         }
 
         $this->closeProcess();
+        return $this->result;
     }
 
     /**
@@ -166,7 +172,7 @@ class Expect
         fclose($this->pipes[0]);
         fclose($this->pipes[1]);
         fclose($this->pipes[2]);
-        proc_close($this->process);
+        $this->result = proc_close($this->process);
     }
 
     /**
